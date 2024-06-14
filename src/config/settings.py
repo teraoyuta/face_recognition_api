@@ -27,47 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-import logging
-from django.utils.log import DEFAULT_LOGGING
-
 # logsディレクトリが存在しない場合は作成します
 logs_dir = os.path.join(BASE_DIR, 'storage/logs')
 if not os.path.exists(logs_dir):
     os.makedirs(logs_dir)
 
 logfile_path = os.path.join(logs_dir, 'django.log')
-
-# ログレベルを設定します（DEBUG、INFO、WARNING、ERROR、CRITICAL）
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': logfile_path,
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],  # 'console'ハンドラーを追加
-            'level': 'DEBUG',  # ログレベルをDEBUGに変更
-            'propagate': True,
-        },
-        'api': {
-            'handlers': ['file', 'console'],  # 'console'ハンドラーを追加
-            'level': 'DEBUG',  # ログレベルをDEBUGに変更
-            'propagate': True,
-        },
-    },
-}
-
-# デフォルトのログ設定を使用します
-DEFAULT_LOGGING.update(LOGGING)
 
 # Application definition
 
@@ -79,11 +44,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'libraries',
     'api',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -93,12 +60,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'face_recognition_app.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR, 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -111,8 +78,42 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'slogan_checker.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]
 
+# ログレベルを設定します（DEBUG、INFO、WARNING、ERROR、CRITICAL
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': logfile_path,
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'api': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'corsheaders': {
+            'handlers': ['file'],  # CORS関連のログはファイルのみに出力
+            'level': 'DEBUG',  # ログレベルをERRORに設定
+            'propagate': False,
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -151,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ja'
 
 TIME_ZONE = 'UTC'
 
@@ -166,5 +167,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
