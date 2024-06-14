@@ -1,0 +1,9 @@
+Django==2.2.12
+uwsgi==2.0.18
+mysqlclient==1.4.6
+djangorestframework
+numpy
+django-cors-headers
+h5py==3.6.0
+tensorflow==2.10.0rc0
+Pillow
